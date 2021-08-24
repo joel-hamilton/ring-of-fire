@@ -16,7 +16,7 @@ function App() {
     }, []);
 
     const updateSettings = function (key: string, value: string) {
-        if (key === 'start' || key == 'end') {
+        if (key === 'start' || key === 'end') {
             const date: DateTime = DateTime.fromISO(value);
             if (!date.isValid) return;
             value = date.toISO();
@@ -25,10 +25,10 @@ function App() {
     }
 
     const loadData = async function () {
-        let res = fetch(`${process.env.REACT_APP_SERVER_URL}/features`, {
-            method: 'GET',
-            body: JSON.stringify({ start: settings.start, end: settings.end, magnitude: settings.magnitude })
-        })
+        // let res = fetch(`${process.env.REACT_APP_SERVER_URL}/features`, {
+        //     method: 'GET',
+        //     body: JSON.stringify({ start: settings.start, end: settings.end, magnitude: settings.magnitude })
+        // })
     }
 
     return (

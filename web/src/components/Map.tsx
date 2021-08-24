@@ -18,12 +18,11 @@ export default function Map() {
         const map = new mapboxgl.Map({
             container: 'map',
             logoPosition: 'bottom-right',
-            // renderWorldCopies: false,
             style: 'mapbox://styles/mapbox/dark-v9',
             center: [170, 40],
             zoom: 1
         });
-    })
+    }, [])
 
     return (
         <MapElem id="map" />

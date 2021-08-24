@@ -1,20 +1,22 @@
 import styled from 'styled-components';
-import { isPropertyAssignment } from 'typescript';
 import { SettingsInterface } from '../types';
-export default function Settings(props: { settings: SettingsInterface, onUpdate: Function }) {
+import Input from './Input';
 
-    const SettingsWrapper = styled.div`
-    position: relative;
-    z-index: 1;
+const SettingsWrapper = styled.div`
+position: relative;
+z-index: 1;
 `;
+
+export default function Settings({ settings, onUpdate }: { settings: SettingsInterface, onUpdate: (key: string, value: string) => void }) {
 
     return (
         <SettingsWrapper>
             <h3>Settings</h3>
-            <input type="text" name="start" value={props.settings.start} onChange={e => props.onUpdate(e.target.name, e.target.value)} />
-            <input type="text" name="end" value={props.settings.end} onChange={e => props.onUpdate(e.target.name, e.target.value)} />
-            <input type="text" name="magnitude" value={props.settings.magnitude} onChange={e => props.onUpdate(e.target.name, e.target.value)} />
-            <input type="text" name="speed" value={props.settings.speed} onChange={e => props.onUpdate(e.target.name, e.target.value)} />
+            <Input.Date name="start" onSelect={onUpdate} />
+            <Input.Text name="start" value={settings.start} onChange={onUpdate} />
+            <Input.Text name="end" value={settings.end} onChange={onUpdate} />
+            <Input.Range name="magnitude" min={0} max={10} value={settings.magnitude} onChange={onUpdate} />
+            <Input.Range name="speed" min={0} max={10} value={settings.speed} onChange={onUpdate} />
         </SettingsWrapper>
     )
 }
