@@ -3,7 +3,6 @@
     "version": "0.1.0",
     "repository": "joelhamilton5/ring-of-fire",
     "workspaces": [
-        "server",
         "web"
     ],
     "dependencies": {
