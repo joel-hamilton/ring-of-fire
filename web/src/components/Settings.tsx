@@ -3,8 +3,12 @@ import { SettingsInterface } from '../types';
 import Input from './Input';
 
 const SettingsWrapper = styled.div`
-position: relative;
-z-index: 1;
+    position: relative;
+    z-index: 1;
+
+    h3, span {
+        color: #fafafa;
+    }
 `;
 
 export default function Settings({ settings, onUpdate }: { settings: SettingsInterface, onUpdate: (key: string, value: string) => void }) {
@@ -12,9 +16,8 @@ export default function Settings({ settings, onUpdate }: { settings: SettingsInt
     return (
         <SettingsWrapper>
             <h3>Settings</h3>
-            <Input.Date name="start" onSelect={onUpdate} />
-            <Input.Text name="start" value={settings.start} onChange={onUpdate} />
-            <Input.Text name="end" value={settings.end} onChange={onUpdate} />
+            <Input.Date name="start" value={settings.start} onSelect={onUpdate} />
+            <Input.Date name="end" value={settings.start} onSelect={onUpdate} />
             <Input.Range name="magnitude" min={0} max={10} value={settings.magnitude} onChange={onUpdate} />
             <Input.Range name="speed" min={0} max={10} value={settings.speed} onChange={onUpdate} />
         </SettingsWrapper>

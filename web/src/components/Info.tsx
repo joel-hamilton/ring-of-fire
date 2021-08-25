@@ -2,16 +2,18 @@ import { SettingsInterface } from '../types';
 import styled from 'styled-components';
 
 const InfoWrapper = styled.div`
+color: #fafafa;
 position: relative;
 z-index: 1;
 `;
+
 
 export default function Info({ settings }: { settings: SettingsInterface }) {
     return (
         <InfoWrapper>
             <h3>Info:</h3>
             {
-                Object.keys(settings).map(k => {
+                Object.keys(settings).map((k: string) => {
                     const key: 'start' | 'end' | 'magnitude' = k as 'start' | 'end' | 'magnitude';
 
                     return (

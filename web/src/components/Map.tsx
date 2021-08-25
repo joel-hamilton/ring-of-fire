@@ -25,6 +25,6 @@ export default function Map() {
     }, [])
 
     return (
-        <MapElem id="map" />
+        <MapElem id="map" aria-label="map" />
     )
 }

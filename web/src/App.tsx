@@ -6,7 +6,7 @@ import Settings from './components/Settings';
 import { DateTime } from 'luxon';
 
 function App() {
-    const [settings, setSettings] = useState({ start: DateTime.now().minus({ weeks: 2 }).toISO(), end: DateTime.now().toISO(), magnitude: 5, speed: 5 });
+    const [settings, setSettings] = useState({ start: DateTime.now().minus({ weeks: 2 }).toFormat('yyyy-MM-dd'), end: DateTime.now().toFormat('yyyy-MM-dd'), magnitude: 5, speed: 5 });
     useEffect(() => {
         async function load() {
             await loadData();
@@ -19,7 +19,7 @@ function App() {
         if (key === 'start' || key === 'end') {
             const date: DateTime = DateTime.fromISO(value);
             if (!date.isValid) return;
-            value = date.toISO();
+            value = date.toFormat('yyyy-MM-dd');
         }
         setSettings({ ...settings, [key]: value });
     }

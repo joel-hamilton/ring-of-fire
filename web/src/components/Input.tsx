@@ -1,41 +1,45 @@
-import DayPicker from 'react-day-picker/DayPicker';
+import DayPickerInput from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
-import { DayModifiers } from 'react-day-picker/types/Modifiers';
 import { DateTime } from 'luxon';
-import { createNoSubstitutionTemplateLiteral } from 'typescript';
 
 const Range = function (props: { min: number, max: number, value: number, name?: string, onChange?: (name: string, value: string) => void }) {
+    const { onChange, ...passthrough } = props;
+    const internalOnChange = function (e: React.ChangeEvent<HTMLInputElement>) {
+        onChange && props.name && onChange(props.name, e.target.value);
+    }
+
     return (
         <>
             <span>{props.min}</span>
-            <input type="range" min={props.min} max={props.max} value={props.value} name={props.name} onChange={e => props.onChange && props.onChange(e.target.name, e.target.value)} />
+            <input type="range" role="slider" {...passthrough} onChange={internalOnChange} />
             <span>{props.max}</span>
         </>
     )
 }
 
 const Text = function (props: { value: string, name?: string, onChange?: (name: string, value: string) => void }) {
+    const { onChange, ...passthrough } = props;
+    const internalOnChange = function (e: React.ChangeEvent<HTMLInputElement>) {
+        onChange && props.name && onChange(props.name, e.target.value);
+    }
+
     return (
         <>
-            <input type="text" value={props.value} name={props.name} onChange={e => props.onChange && props.onChange(e.target.name, e.target.value)} />
+            <input type="text" {...passthrough} onChange={internalOnChange} />
         </>
     )
 }
 
-const Date = function (props: {name:string, onSelect: (name: string, date: string) => void }) {
-    const onDayClick = function(day: Date, modifiers:DayModifiers): void {
-        console.log(day);
-        console.log(modifiers);
-        // if(modifiers.selected) {
-            const dateStr = DateTime.fromJSDate(day).toISO();
-            props.onSelect(props.name, dateStr);
-        // }
-        // TODO update dateinput?
+const Date = function (props: { name: string, value: string, onSelect: (name: string, date: string) => void }) {
+    const onDayChange = function (day: Date) {
+        const dateStr = DateTime.fromJSDate(day).toISO();
+        props.onSelect(props.name, dateStr);
     }
 
     return (
-        <DayPicker onDayClick={onDayClick} />
+        <DayPickerInput onDayChange={onDayChange} />
     )
 }
 
-export default { Range, Text, Date }
+const Input = { Range, Text, Date };
+export default Input;
