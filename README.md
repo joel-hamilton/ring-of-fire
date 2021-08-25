@@ -6,4 +6,4 @@ Very much a WIP
 
 ![Demo](demo.gif)
 
-{{react|typescript|go}}
+{{learning|react|typescript|go}}
