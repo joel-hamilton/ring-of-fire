@@ -1,7 +1,7 @@
 // import '/node_modules/mapbox-gl/dist/mapbox-gl.css';
-import mapboxgl from 'mapbox-gl';
 import styled from 'styled-components';
 import { useEffect } from 'react';
+import mapboxgl from 'mapbox-gl';
 
 const MapElem = styled.div`
     position: fixed;
@@ -12,17 +12,29 @@ const MapElem = styled.div`
 `;
 
 
-export default function Map() {
+export default function Map({features}: {features: []}) {
     useEffect(() => {
         mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY as string;
-        const map = new mapboxgl.Map({
+        let map = new mapboxgl.Map({
             container: 'map',
             logoPosition: 'bottom-right',
             style: 'mapbox://styles/mapbox/dark-v9',
             center: [170, 40],
             zoom: 1
         });
+
+        // map.on('load', () => {
+        //     map.addSource('earthquakes', {
+        //         type: 'geojson',
+        //         data: {features}
+        //     })
+        // })
     }, [])
+
+    // useEffect(() => {
+    //     const src:GeoJSONSource = map.getSource('earthquakes');
+    //     src.setData(features)
+    // }, [features])
 
     return (
         <MapElem id="map" aria-label="map" />
