@@ -1,7 +1,7 @@
 package main
 
 // TODO
-// this currently just passes through the USGS earthquake data, want to eventually save it in redis and only fetch if necessary
+// this currently just passes through the USGS earthquake data, want to eventually save it in redis/db and only fetch if necessary
 
 import (
 	"encoding/json"
@@ -66,6 +66,7 @@ func getFeatures(c *gin.Context) {
 	type QueryRes struct {
 		Features []struct {
 			Geometry struct {
+				Type        string    `json:"type"`
 				Coordinates []float64 `json:"coordinates"`
 			} `json:"geometry"`
 			ID         string `json:"id"`

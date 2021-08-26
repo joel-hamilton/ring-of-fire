@@ -1,13 +1,13 @@
 import './App.css';
 import { useState, useEffect } from 'react';
 import Info from './components/Info';
-import Map from './components/Map';
+import FeatureMap from './components/FeatureMap';
 import Settings from './components/Settings';
 import { DateTime } from 'luxon';
 
 function App() {
-    const [settings, setSettings] = useState({ start: DateTime.now().minus({ weeks: 2 }).toFormat('yyyy-MM-dd'), end: DateTime.now().toFormat('yyyy-MM-dd'), magnitude: 5, speed: 5 });
-    const [features, setFeatures] = useState([]);
+    const [settings, setSettings] = useState<MapOptions>({ start: DateTime.now().minus({ weeks: 2 }).toFormat('yyyy-MM-dd'), end: DateTime.now().toFormat('yyyy-MM-dd'), magnitude: 5, speed: 5 });
+    const [featuresCollection, setFeaturesCollection] = useState<GeoJSON.FeatureCollection>({ type: "FeatureCollection", features: [] });
 
     useEffect(() => {
         async function load() {
@@ -36,15 +36,16 @@ function App() {
             },
         });
 
-        let json = await res.json();
-        setFeatures(json);
+        const data = await res.json();
+        const collection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: data.features };
+        setFeaturesCollection(collection);
     }
 
     return (
         <div className="app">
             {`loading data from: ${settings.start} to ${settings.end}, magnitude >${settings.magnitude}`}
             <Info settings={settings} />
-            {/* <Map features={features} /> */}
+            <FeatureMap featuresCollection={featuresCollection} />
             <Settings settings={settings} onUpdate={updateSettings} />
         </div>
     );
