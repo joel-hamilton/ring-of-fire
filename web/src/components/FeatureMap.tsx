@@ -1,7 +1,7 @@
 // import '/node_modules/mapbox-gl/dist/mapbox-gl.css';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
-import mapboxgl, { Map } from 'mapbox-gl';
+import mapboxgl, { GeoJSONSource, Map } from 'mapbox-gl';
 
 const MapElem = styled.div`
     position: fixed;
@@ -13,6 +13,7 @@ const MapElem = styled.div`
 
 export default function FeatureMap({ featuresCollection }: { featuresCollection: GeoJSON.FeatureCollection }) {
     const [map, setMap] = useState<Map | null>(null);
+    const [sourceAdded, setSourceAdded] = useState<boolean>(false);
     useEffect(() => {
         mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY as string;
         const m = new mapboxgl.Map({
@@ -24,8 +25,6 @@ export default function FeatureMap({ featuresCollection }: { featuresCollection:
         });
 
         m.on('load', () => {
-            updateFeatures();
-
             m.addLayer({
                 "id": "earthquakes",
                 "source": "earthquakes",
@@ -61,15 +60,23 @@ export default function FeatureMap({ featuresCollection }: { featuresCollection:
 
     // update features
     useEffect(() => {
+        console.log('updating features collection')
         updateFeatures();
     }, [featuresCollection])
 
     const updateFeatures = function () {
-        if (map) {
+        if (!map) return;
+
+        if (sourceAdded) {
+            const source: GeoJSONSource = map.getSource('earthquakes') as GeoJSONSource;
+            source.setData(featuresCollection);
+        } else {
             map.addSource('earthquakes', {
                 type: 'geojson',
                 data: featuresCollection
             });
+
+            setSourceAdded(true);
         }
     }
 

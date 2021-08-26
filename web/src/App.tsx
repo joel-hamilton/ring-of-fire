@@ -17,6 +17,11 @@ function App() {
         load();
     }, []);
 
+    // update features on date change
+    useEffect(() => {
+        loadData();
+    }, [settings.start, settings.end])
+
     const updateSettings = function (key: string, value: string) {
         if (key === 'start' || key === 'end') {
             const date: DateTime = DateTime.fromISO(value);
