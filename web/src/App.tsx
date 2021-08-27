@@ -6,7 +6,7 @@ import Settings from './components/Settings';
 import { DateTime } from 'luxon';
 
 function App() {
-    const [settings, setSettings] = useState<MapOptions>({ start: DateTime.now().minus({ weeks: 2 }).toFormat('yyyy-MM-dd'), end: DateTime.now().toFormat('yyyy-MM-dd'), magnitude: 5, speed: 5 });
+    const [settings, setSettings] = useState<MapOptions>({ start: "1995-01-01", end: "1995-02-05", magnitude: 5, speed: 5 });
     const [featuresCollection, setFeaturesCollection] = useState<GeoJSON.FeatureCollection>({ type: "FeatureCollection", features: [] });
 
     useEffect(() => {
@@ -32,17 +32,30 @@ function App() {
     }
 
     const loadData = async function () {
-        let url = new URL(`${process.env.REACT_APP_API_URL}/features`);
-        url.search = new URLSearchParams({ start: settings.start, end: settings.end, magnitude: settings.magnitude.toString() }).toString();
-        let res = await fetch(url.toString(), {
-            method: 'GET',
+        let url = 'http://localhost:8080/v1/graphql';
+        const featureQuery = `
+        query featureQuery {
+            usgs_data(where: {time: {_gte: "${settings.start}", _lte: "${settings.end}"}, magnitude: {_gte: ${settings.magnitude}}}) {
+                feature
+            }
+        }
+        `;
+
+        let res = await fetch(url, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
+            body: JSON.stringify({
+                query: featureQuery
+            })
         });
 
         const data = await res.json();
-        const collection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: data.features };
+        const features: GeoJSON.Feature[] = data.data.usgs_data.map((obj: any) => {
+            return obj.feature;
+        })
+        const collection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features };
         setFeaturesCollection(collection);
     }
 

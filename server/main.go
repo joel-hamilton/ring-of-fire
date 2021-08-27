@@ -31,7 +31,7 @@ func main() {
 	}))
 
 	router.GET("/features", getFeatures)
-	router.Run("localhost:8080")
+	router.Run("localhost:8888")
 }
 
 func getFeatures(c *gin.Context) {

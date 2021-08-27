@@ -2,8 +2,8 @@
 
 Time-travel visualization of seismic events, using data from USGS.
 
-Very much a WIP
+Very much a WIP. 
 
 ![Demo](demo.gif)
 
-{{learning|react|typescript|go}}
+{{learning|react|typescript|graphql|go}}

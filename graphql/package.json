@@ -1,0 +1,11 @@
+{
+    "name": "graphql",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "dotenv": "^10.0.0",
+        "luxon": "^2.0.2",
+        "node-fetch": "^2.6.1",
+        "pg": "^8.7.1"
+    }
+}
