@@ -5,7 +5,7 @@ const { DateTime } = require('luxon');
 const { Pool } = require('pg')
 const fetch = require('node-fetch');
 const pool = new Pool()
-const start = DateTime.local(1995, 1, 3);
+const start = DateTime.local(1996, 8, 21);
 const end = DateTime.now()
 
 fetchData(saveData);
@@ -23,7 +23,6 @@ async function fetchData(saveFn) {
 }
 
 async function saveData(data) {
-    console.log(data.features.length);
     let promises = data.features.map(feature => {
         return pool.query("INSERT INTO usgs_data (event_type, magnitude, time, feature) VALUES ($1, $2, $3, $4)", [feature.properties.type, feature.properties.mag, DateTime.fromMillis(feature.properties.time).toISO(), feature])
     });
