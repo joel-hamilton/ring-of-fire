@@ -11,9 +11,52 @@ const MapElem = styled.div`
     left: 0;
 `;
 
-export default function FeatureMap({ featuresCollection }: { featuresCollection: GeoJSON.FeatureCollection }) {
+export default function FeatureMap({ settings }: { settings: MapOptions }) {
     const [map, setMap] = useState<Map | null>(null);
+    const [featuresCollection, setFeaturesCollection] = useState<GeoJSON.FeatureCollection>({ type: "FeatureCollection", features: [] });
     const [sourceAdded, setSourceAdded] = useState<boolean>(false);
+
+    useEffect(() => {
+        async function load() {
+            await loadData();
+        }
+
+        load();
+    }, []);
+
+    // update features on date change
+    useEffect(() => {
+        loadData();
+    }, [settings.start, settings.end])
+
+    const loadData = async function () {
+        let url = 'http://localhost:8080/v1/graphql';
+        const featureQuery = `
+        query featureQuery {
+            usgs_data(where: {time: {_gte: "${settings.start}", _lte: "${settings.end}"}, magnitude: {_gte: ${settings.magnitude}}}) {
+                feature
+            }
+        }
+        `;
+
+        let res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: featureQuery
+            })
+        });
+
+        const data = await res.json();
+        const features: GeoJSON.Feature[] = data.data.usgs_data.map((obj: any) => {
+            return obj.feature;
+        })
+        const collection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features };
+        setFeaturesCollection(collection);
+    }
+
     useEffect(() => {
         mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY as string;
         const m = new mapboxgl.Map({
