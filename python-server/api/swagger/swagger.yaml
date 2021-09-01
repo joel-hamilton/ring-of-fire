@@ -1,0 +1,43 @@
+openapi: 3.0.0
+info:
+  title: Ring of Fire API
+  description: API for fetching seismic data
+  version: 1.0.0
+servers:
+- url: http://localhost:8081/v1
+  description: Development server
+#security:
+#- api_key:
+#  - read
+#  - write
+paths:
+  /example:
+    get:
+      summary: Server example operation
+      description: This is an example operation to show how security is applied to
+        the call.
+      operationId: example_get
+      responses:
+        "200":
+          description: OK
+      security:
+        - api_key: []
+      x-openapi-router-controller: api.controllers.default_controller
+  /ping:
+    get:
+      summary: Server heartbeat operation
+      description: "This operation shows how to override the global security defined\
+        \ above, as we want to open it up for all users."
+      operationId: ping_get
+      responses:
+        "200":
+          description: OK
+      security: []
+      x-openapi-router-controller: api.controllers.default_controller
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: X-Auth
+      in: header
+      x-apikeyInfoFunc: api.controllers.authorization_controller.apikey_auth

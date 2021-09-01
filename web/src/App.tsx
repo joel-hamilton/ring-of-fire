@@ -7,7 +7,7 @@ import { DateTime } from 'luxon';
 import { GraphQLClient, ClientContext } from 'graphql-hooks'
 
 const client = new GraphQLClient({
-    url: '/graphql'
+    url: 'http://localhost:8080/v1/graphql'
 })
 
 function App() {

@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load("../.servers.env")
 	if err != nil {
 		log.Fatal("Unable to read .env")
 	}

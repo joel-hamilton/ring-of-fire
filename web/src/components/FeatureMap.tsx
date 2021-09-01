@@ -1,7 +1,9 @@
 // import '/node_modules/mapbox-gl/dist/mapbox-gl.css';
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import mapboxgl, { GeoJSONSource, Map } from 'mapbox-gl';
+import { useQuery } from 'graphql-hooks'
+
 
 const MapElem = styled.div`
     position: fixed;
@@ -11,53 +13,25 @@ const MapElem = styled.div`
     left: 0;
 `;
 
+const featureQuery = `query featureQuery($start: timestamp, $end: timestamp, $magnitude: Float) {
+    usgs_data(where: {time: {_gte: $start, _lte: $end}, magnitude: {_gte: $magnitude}}) {
+        feature
+    }
+}`
+
 export default function FeatureMap({ settings }: { settings: MapOptions }) {
     const [map, setMap] = useState<Map | null>(null);
-    const [featuresCollection, setFeaturesCollection] = useState<GeoJSON.FeatureCollection>({ type: "FeatureCollection", features: [] });
     const [sourceAdded, setSourceAdded] = useState<boolean>(false);
 
-    useEffect(() => {
-        async function load() {
-            await loadData();
+    const { loading, error, data } = useQuery(featureQuery, {
+        variables: {
+            start: settings.start,
+            end: settings.end,
+            magnitude: settings.magnitude
         }
+    });
 
-        load();
-    }, []);
-
-    // update features on date change
-    useEffect(() => {
-        loadData();
-    }, [settings.start, settings.end])
-
-    const loadData = async function () {
-        let url = 'http://localhost:8080/v1/graphql';
-        const featureQuery = `
-        query featureQuery {
-            usgs_data(where: {time: {_gte: "${settings.start}", _lte: "${settings.end}"}, magnitude: {_gte: ${settings.magnitude}}}) {
-                feature
-            }
-        }
-        `;
-
-        let res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                query: featureQuery
-            })
-        });
-
-        const data = await res.json();
-        const features: GeoJSON.Feature[] = data.data.usgs_data.map((obj: any) => {
-            return obj.feature;
-        })
-        const collection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features };
-        setFeaturesCollection(collection);
-    }
-
-    useEffect(() => {
+    const loadMapbox = () => {
         mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY as string;
         const m = new mapboxgl.Map({
             container: 'map',
@@ -97,18 +71,21 @@ export default function FeatureMap({ settings }: { settings: MapOptions }) {
                     ]
                 }
             });
-        })
-        setMap(m);
-    }, [])
 
-    // update features
-    useEffect(() => {
-        console.log('updating features collection')
-        updateFeatures();
-    }, [featuresCollection])
+            setMap(m);
+        });
+    }
 
-    const updateFeatures = function () {
-        if (!map) return;
+    const sleep = (ms: number = 0) => new Promise(resolve => setTimeout(resolve, ms))
+
+    const updateFeatures = async function (featuresCollection: GeoJSON.FeatureCollection) {
+        if (!map) {
+            await sleep();
+            loadMapbox();
+            while (!map) {
+                await sleep(100);
+            }
+        }
 
         if (sourceAdded) {
             const source: GeoJSONSource = map.getSource('earthquakes') as GeoJSONSource;
@@ -122,6 +99,19 @@ export default function FeatureMap({ settings }: { settings: MapOptions }) {
             setSourceAdded(true);
         }
     }
+
+    if (loading) return <h1>Loading...</h1>
+    if (error) return <h1>Something Bad Happened</h1>
+
+    console.log(data);
+    const features: GeoJSON.Feature[] = data.usgs_data.map((obj: any) => {
+        return obj.feature;
+    })
+    const collection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features };
+    updateFeatures(collection);
+
+    console.log('MAGIC')
+
 
     return (
         <MapElem id="map" aria-label="map" />
