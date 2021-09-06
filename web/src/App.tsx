@@ -12,14 +12,36 @@ const client = new GraphQLClient({
 
 function App() {
     const [settings, setSettings] = useState<MapOptions>({ start: "1995-01-01", end: "1995-02-05", magnitude: 5, speed: 5 });
+    const [play, setPlay] = useState(false);
+
+    useEffect(() => {
+        setTimeout(() => {
+            if (play) {
+                updateSettings('start', DateTime.fromISO(settings.start).plus({ days: 1 }).toFormat('yyyy-MM-dd'));
+            }
+        }, 250);
+    });
 
     const updateSettings = function (key: string, value: string) {
-        if (key === 'start' || key === 'end') {
+        if (key === 'start') {
             const date: DateTime = DateTime.fromISO(value);
             if (!date.isValid) return;
-            value = date.toFormat('yyyy-MM-dd');
+            const dates = {
+                start: date.toFormat('yyyy-MM-dd'),
+                end: date.plus({ days: 30 }).toFormat('yyyy-MM-dd')
+            };
+            setSettings({ ...settings, ...dates });
+        } else {
+            setSettings({ ...settings, [key]: value });
         }
-        setSettings({ ...settings, [key]: value });
+    }
+
+    const PlayPause = function ({ play, onClick }: { play: boolean, onClick: () => void }) {
+        return (
+            <div onClick={onClick} style={{ position: 'relative', zIndex: 1 }}>
+                {play ? 'play' : 'pause'}
+            </div>
+        )
     }
 
     return (
@@ -29,6 +51,7 @@ function App() {
                 <Info settings={settings} />
                 <FeatureMap settings={settings} />
                 <Settings settings={settings} onUpdate={updateSettings} />
+                <PlayPause play={play} onClick={() => setPlay(!play)} />
             </ClientContext.Provider>
         </div>
     );

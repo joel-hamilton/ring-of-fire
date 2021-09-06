@@ -21,7 +21,6 @@ const featureQuery = `query featureQuery($start: timestamp, $end: timestamp, $ma
 
 export default function FeatureMap({ settings }: { settings: MapOptions }) {
     const [map, setMap] = useState<Map | null>(null);
-    const [sourceAdded, setSourceAdded] = useState<boolean>(false);
 
     const { loading, error, data } = useQuery(featureQuery, {
         variables: {
@@ -31,7 +30,10 @@ export default function FeatureMap({ settings }: { settings: MapOptions }) {
         }
     });
 
-    const loadMapbox = () => {
+    // if (loading) return <h1>Loading...</h1>
+    // if (error) return <h1>Something Bad Happened</h1>
+
+    const loadMapbox = () => new Promise((res, rej) => {
         mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY as string;
         const m = new mapboxgl.Map({
             container: 'map',
@@ -41,8 +43,27 @@ export default function FeatureMap({ settings }: { settings: MapOptions }) {
             zoom: 1
         });
 
+        m.on('error', rej);
         m.on('load', () => {
-            m.addLayer({
+            setMap(m);
+            res(true);
+        });
+    });
+
+    const updateFeatures = async function (featuresCollection: GeoJSON.FeatureCollection) {
+        if (!map) return;
+
+        const source: GeoJSONSource = map.getSource('earthquakes') as GeoJSONSource;
+
+        if (source) {
+            source.setData(featuresCollection);
+        } else {
+            map.addSource('earthquakes', {
+                type: 'geojson',
+                data: featuresCollection
+            });
+
+            map.addLayer({
                 "id": "earthquakes",
                 "source": "earthquakes",
                 "type": "circle",
@@ -56,62 +77,35 @@ export default function FeatureMap({ settings }: { settings: MapOptions }) {
                         'case',
                         ['>', ['to-number', ['get', 'mag']], 7],
                         '#00e67a',
-                        // '#FF3645',
                         ['>', ['to-number', ['get', 'mag']], 6],
                         '#00cc69',
-                        // '#FFA936',
                         ['>', ['to-number', ['get', 'mag']], 5],
                         '#00b35c',
-                        // '#ffca33',
                         ['>', ['to-number', ['get', 'mag']], 4],
                         '#00994f',
-                        // '#FFE036',
                         '#008040',
-                        // '#fff242'
                     ]
                 }
             });
-
-            setMap(m);
-        });
+        }
     }
 
-    const sleep = (ms: number = 0) => new Promise(resolve => setTimeout(resolve, ms))
-
-    const updateFeatures = async function (featuresCollection: GeoJSON.FeatureCollection) {
+    const load = async function (collection: GeoJSON.FeatureCollection) {
         if (!map) {
-            await sleep();
-            loadMapbox();
-            while (!map) {
-                await sleep(100);
-            }
+            setTimeout(async () => {
+                await loadMapbox();
+            }, 0);
         }
 
-        if (sourceAdded) {
-            const source: GeoJSONSource = map.getSource('earthquakes') as GeoJSONSource;
-            source.setData(featuresCollection);
-        } else {
-            map.addSource('earthquakes', {
-                type: 'geojson',
-                data: featuresCollection
-            });
-
-            setSourceAdded(true);
-        }
+        updateFeatures(collection);
     }
 
-    if (loading) return <h1>Loading...</h1>
-    if (error) return <h1>Something Bad Happened</h1>
 
-    console.log(data);
-    const features: GeoJSON.Feature[] = data.usgs_data.map((obj: any) => {
-        return obj.feature;
-    })
-    const collection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features };
-    updateFeatures(collection);
-
-    console.log('MAGIC')
-
+    if (!loading && !error) {
+        const features: GeoJSON.Feature[] = data.usgs_data.map((obj: any) => obj.feature);
+        const collection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features };
+        load(collection);
+    }
 
     return (
         <MapElem id="map" aria-label="map" />

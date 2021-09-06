@@ -2,17 +2,17 @@ import DayPickerInput from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
 import { DateTime } from 'luxon';
 
-const Range = function (props: { min: number, max: number, value: number, name?: string, onChange?: (name: string, value: string) => void }) {
-    const { onChange, ...passthrough } = props;
+const Range = function (props: { min: number, max: number, value: number, minString?: string, maxString?: string, name?: string, onChange?: (name: string, value: string) => void }) {
+    const { onChange, minString, maxString, ...passthrough } = props;
     const internalOnChange = function (e: React.ChangeEvent<HTMLInputElement>) {
         onChange && props.name && onChange(props.name, e.target.value);
     }
 
     return (
         <>
-            <span>{props.min}</span>
+            <span>{props.minString || props.min}</span>
             <input type="range" role="slider" {...passthrough} onChange={internalOnChange} />
-            <span>{props.max}</span>
+            <span>{props.maxString || props.max}</span>
         </>
     )
 }

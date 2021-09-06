@@ -7,7 +7,6 @@ position: relative;
 z-index: 1;
 `;
 
-
 export default function Info({ settings }: { settings: SettingsInterface }) {
     return (
         <InfoWrapper>
